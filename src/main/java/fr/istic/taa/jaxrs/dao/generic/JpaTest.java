@@ -10,11 +10,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
 
-public class Test {
+public class JpaTest {
 
     private EntityManager manager;
 
-    public Test(EntityManager manager) {
+    public JpaTest(EntityManager manager) {
         this.manager = manager;
     }
 
@@ -22,7 +22,6 @@ public class Test {
         EntityManager manager = EntityManagerHelper.getEntityManager();
         UserDAO userDAO = new UserDAO();
         RoleDAO roleDAO = new RoleDAO();
-        TagDAO tagDAO = new TagDAO();
         TicketDAO ticketDAO = new TicketDAO();
         StatusDAO statusDAO = new StatusDAO();
 
