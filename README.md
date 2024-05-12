@@ -1,9 +1,11 @@
 # Rendu SIR BACK - Sacha Fernandez-Soltane et Paul Leclercq
 
+
 * Prérequis : Avoir JAVA_HOME et MAVEN_HOME dans les variables d'environnements
 * Avoir phpmyadmin en local et changer les identifiants pour se connecter à la base de données si besoin dans le fichier
   persistence.xml
 ---
+# POUR EVITER DES PROBLEMES DE CACHE MERCI D'UTILISER LA NAVIGATION PRIVEE #
 
 ### Démarrer le projet ####
 
