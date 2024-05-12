@@ -39,6 +39,7 @@ public class TestApplication extends Application {
         resources.add(TagResource.class);
         resources.add(FeatureResource.class);
         resources.add(BugResource.class);
+        resources.add(RoleResource.class);
         resources.add(CorsFilter.class);
         return resources;
     }

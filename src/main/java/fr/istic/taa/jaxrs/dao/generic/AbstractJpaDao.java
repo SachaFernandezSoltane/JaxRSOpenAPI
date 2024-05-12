@@ -78,4 +78,15 @@ public abstract class AbstractJpaDao<K, T extends Serializable> implements IGene
             return null; // Aucun utilisateur trouvé avec ces identifiants
         }
     }
+
+    public T findByRoleString(String role) {
+        Query query = entityManager.createQuery("SELECT u FROM " + clazz.getName() + " u WHERE u.roleString = :role");
+        query.setParameter("role", role);
+        List<T> results = query.getResultList();
+        if (!results.isEmpty()) {
+            return results.get(0); // Supposant qu'il n'y a qu'un seul utilisateur avec cet email et ce mot de passe
+        } else {
+            return null; // Aucun utilisateur trouvé avec ces identifiants
+        }
+    }
 }

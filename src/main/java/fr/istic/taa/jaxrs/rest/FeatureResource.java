@@ -1,9 +1,17 @@
 package fr.istic.taa.jaxrs.rest;
 
 import fr.istic.taa.jaxrs.dao.FeatureDAO;
+import fr.istic.taa.jaxrs.dao.StatusDAO;
+import fr.istic.taa.jaxrs.dao.TicketDAO;
+import fr.istic.taa.jaxrs.dao.UserDAO;
 import fr.istic.taa.jaxrs.domain.Feature;
+import fr.istic.taa.jaxrs.domain.Status;
+import fr.istic.taa.jaxrs.domain.Ticket;
+import fr.istic.taa.jaxrs.domain.User;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.util.Collections;
 import java.util.List;
@@ -15,14 +23,27 @@ public class FeatureResource {
 
     @POST
     @Path("/new")
-    public Response newFeature() {
+    public Response newFeature(JSONObject content) {
         try {
-            Feature feature = new Feature();
+            String titreTicket = (String) content.get("titreTicket");
+            String userTicket = (String) content.get("userTicket");
+            String statusTicket = (String) content.get("statusTicket");
+            String descriptionTicket = (String) content.get("descriptionTicket");
+
+            UserDAO userDAO = new UserDAO();
+            StatusDAO statusDAO = new StatusDAO();
+            FeatureDAO featureDAO = new FeatureDAO();
+
+            User user = userDAO.findOne(Long.parseLong(userTicket));
+            Status status = statusDAO.findOne(Long.parseLong(statusTicket));
+            Feature feature = new Feature(titreTicket,descriptionTicket,status,user);
             featureDAO.save(feature);
-            return Response.ok().entity("SUCCESS").build();
+            JSONObject responseJson = new JSONObject();
+            responseJson.put("message", "SUCCESS");
+            return Response.ok().entity(responseJson.toJSONString()).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Failed to create new feature: " + e.getMessage()).build();
+                    .entity("Failed to create new ticket: " + e.getMessage()).build();
         }
     }
 

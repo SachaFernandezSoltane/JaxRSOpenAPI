@@ -28,6 +28,10 @@ public class Status implements Serializable {
         this.statusString = "OPEN";
     }
 
+    public Status(String statusString) {
+        this.statusString = statusString;
+    }
+
     public void setUserStatus(String userStatus) {
         this.statusString = userStatus;
     }
@@ -38,5 +42,9 @@ public class Status implements Serializable {
 
     public void setTickets(Ticket ticket) {
         this.tickets.add(ticket);
+    }
+
+    public int getId() {
+        return id;
     }
 }

@@ -1,11 +1,17 @@
 package fr.istic.taa.jaxrs.rest;
 
+import fr.istic.taa.jaxrs.dao.StatusDAO;
 import fr.istic.taa.jaxrs.dao.TicketDAO;
 import fr.istic.taa.jaxrs.dao.UserDAO;
+import fr.istic.taa.jaxrs.domain.Status;
 import fr.istic.taa.jaxrs.domain.Ticket;
 import fr.istic.taa.jaxrs.domain.User;
+import io.swagger.v3.core.util.Json;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.util.Collections;
 import java.util.List;
@@ -14,19 +20,29 @@ import java.util.List;
 @Produces({"application/json", "application/xml"})
 public class TicketResource {
     private TicketDAO ticketDAO = new TicketDAO();
+    private UserDAO userDAO = new UserDAO();
+    private StatusDAO statusDAO = new StatusDAO();
 
     @POST
     @Path("/new")
-    public Response newTicket() {
+    public Response newTicket(JSONObject content) {
         try {
-            Ticket ticket = new Ticket();
+            String titreTicket = (String) content.get("titreTicket");
+            String userTicket = (String) content.get("userTicket");
+            String statusTicket = (String) content.get("statusTicket");
+            String descriptionTicket = (String) content.get("descriptionTicket");
+
             UserDAO userDAO = new UserDAO();
-            User user = userDAO.findOne(1L);
-            ticket.setUser(user);
-            user.setTicket(ticket);
+            StatusDAO statusDAO = new StatusDAO();
+            TicketDAO ticketDAO = new TicketDAO();
+
+            User user = userDAO.findOne(Long.parseLong(userTicket));
+            Status status = statusDAO.findOne(Long.parseLong(statusTicket));
+            Ticket ticket = new Ticket(titreTicket,descriptionTicket,status,user);
             ticketDAO.save(ticket);
-            userDAO.update(user);
-            return Response.ok().entity("SUCCESS").build();
+            JSONObject responseJson = new JSONObject();
+            responseJson.put("message", "SUCCESS");
+            return Response.ok().entity(responseJson.toJSONString()).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Failed to create new ticket: " + e.getMessage()).build();
@@ -78,10 +94,43 @@ public class TicketResource {
                 return Response.status(Response.Status.NOT_FOUND).entity("Ticket not found").build();
             }
             ticketDAO.delete(ticket);
-            return Response.ok().entity("Ticket deleted successfully").build();
+            JSONObject responseJson = new JSONObject();
+            responseJson.put("message", "SUCCESS");
+            return Response.ok().entity(responseJson.toJSONString()).build();
+        } catch (EntityNotFoundException e) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity("Bug not found: " + e.getMessage())
+                    .build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Failed to delete Ticket: " + e.getMessage()).build();
+                    .entity("Failed to delete bug: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("/update")
+    public Ticket updateTicketById(JSONObject content) {
+        try {
+            System.out.println(content);
+
+            String idTicket = (String) content.get("idTicket");
+            String titreTicket = (String) content.get("titreTicket");
+            String userTicket = (String) content.get("userTicket");
+            String statusTicket = (String) content.get("statusTicket");
+            String descriptionTicket = (String) content.get("descriptionTicket");
+            Ticket ticket = ticketDAO.findOne(Long.parseLong(idTicket));
+            User user = userDAO.findOne(Long.parseLong(userTicket));
+            Status status = statusDAO.findOne(Long.parseLong(statusTicket));
+            ticket.setName(titreTicket);
+            ticket.setUser(user);
+            ticket.setStatus(status);
+            ticket.setDescription(descriptionTicket);
+            ticketDAO.update(ticket);
+            return ticketDAO.findOne(1L);
+        } catch (Exception e) {
+            // Return null or handle the exception as per your application's logic
+            return null;
         }
     }
 }

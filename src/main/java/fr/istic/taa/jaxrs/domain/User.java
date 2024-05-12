@@ -1,5 +1,6 @@
 package fr.istic.taa.jaxrs.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.xml.bind.annotation.XmlAttribute;
 import jakarta.xml.bind.annotation.XmlElement;
@@ -30,6 +31,11 @@ public class User implements Serializable {
     @XmlElement
     @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
     private List<Ticket> tickets = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "role")
+    @JsonIgnoreProperties("users") // Ignorer la sérialisation de la liste des utilisateurs associés à ce rôle
+    private Role role;
 
     public User(String username, String email, String password) {
         this.username = username;
@@ -70,6 +76,14 @@ public class User implements Serializable {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public Role getRole() {
+        return role;
     }
 
     @Override

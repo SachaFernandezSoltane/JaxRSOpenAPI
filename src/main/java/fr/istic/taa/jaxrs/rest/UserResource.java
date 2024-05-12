@@ -1,9 +1,12 @@
 package fr.istic.taa.jaxrs.rest;
 
+import fr.istic.taa.jaxrs.dao.RoleDAO;
 import fr.istic.taa.jaxrs.dao.UserDAO;
+import fr.istic.taa.jaxrs.domain.Role;
 import fr.istic.taa.jaxrs.domain.User;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.swagger.v3.core.util.Json;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -49,6 +52,8 @@ public class UserResource {
                 JSONObject responseJson = new JSONObject();
                 responseJson.put("message", "SUCCESS");
                 responseJson.put("token", token);
+                responseJson.put("user_id", user.getId());
+                System.out.print(user.getId());
                 return Response.ok().entity(responseJson.toJSONString()).build();
             } else {
                 return Response.status(Response.Status.UNAUTHORIZED)
@@ -62,11 +67,19 @@ public class UserResource {
 
     @POST
     @Path("/new")
-    public Response newUser() {
+    public Response newUser(JSONObject content) {
         try {
-            User user = new User("UserTest", "usertest@gmail.com", "passwordtest");
+            String email = (String) content.get("email");
+            String password = (String) content.get("password");
+            String username = (String) content.get("username");
+            User user = new User(username, email, password);
+            RoleDAO roleDAO = new RoleDAO();
+            Role role = roleDAO.findByRoleString("USER");
+            user.setRole(role);
             userDAO.save(user);
-            return Response.ok().entity("SUCCESS").build();
+            JSONObject responseJson = new JSONObject();
+            responseJson.put("message", "SUCCESS");
+            return Response.ok().entity(responseJson.toJSONString()).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Failed to create new user: " + e.getMessage()).build();

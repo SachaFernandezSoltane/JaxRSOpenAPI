@@ -28,7 +28,7 @@ public class EntityManagerHelper {
 		EntityManager em = threadLocal.get();
 		if (em != null) {
 			em.close();
-			threadLocal.set(null);
+            threadLocal.remove();
 		}
 	}
 
